@@ -11,7 +11,7 @@ function error($q = false){
 }
 #ifndef KittenPHP
 function new_db_decl(){
-  $dbC = explode('\n', file_get_contents('db.connect'));
+  $dbC = explode('\n', file_get_contents('db.conf'));
   if(!$db = mysql_connect($dbC[0], $dbC[1], $dbC[2])){
     return false;
   }
