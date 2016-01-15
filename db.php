@@ -5,25 +5,29 @@
   * @special: KPHP-KDB
   * @version: 1
  */
-$db = $inId = $qNum = 0;
+$db = false;
+$inId = $qNum = false;
+
+#ifndef KittenPHP
 function error($q = false){
   exit('DB Error NUM: <b>'.mysql_errno().'</b><br />Error: '.preg_replace("/'([^']+)'/i",'<b>$1</b>',mysql_error()).($q ? '<br />Query: '.$q : ''));
 }
-#ifndef KittenPHP
 function new_db_decl(){
   $dbC = explode('\n', file_get_contents('db.conf'));
   if(!$db = mysql_connect($dbC[0], $dbC[1], $dbC[2])){
-    return false;
+    error();
   }
   if(!mysql_select_db($dbC[3], $db)){
-    return false;
+    error();
   }
   return true;
 }
 function dbQuery($q){
   global $inId;
-  $inId = mysql_query($q);
-  return $inId;
+  if($inId = mysql_query($q)){
+	return $inId;
+  }
+  error($q);
 }
 function dbFetchRow($d){
   return mysql_fetch_assoc($d);
@@ -39,12 +43,10 @@ function dbInsertedId(){
 #endif
 function query($q, $r = false){
   global $db;
-  if(!$db && !($db = new_db_decl())){
-    error();
+  if(!$db){
+	$db = new_db_decl();
   }
-  if(!($d = dbQuery($q))){
-    error($q);
-  }
+  $d = dbQuery($q);
   if(!$r){
     return $d;
   }
